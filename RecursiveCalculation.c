@@ -25,8 +25,14 @@
 #define RECURSIVE_NOTIFICATION1 "%dつ目の数値を入力してください。\n"
 #define RECURSIVE_NOTIFICATION2 "1 : 総和\n2 : 総乗\n"
 #define RECURSIVE_NOTIFICATION3 "処理番号を入力してください。\n"
-#define RECURSIVE_NOTIFICATION4 "入力した 5 つの数値の総和は [計算結果] です。\nもう一度計算しますか?(y/n)\n"
+#define RECURSIVE_NOTIFICATION4 "入力した 5 つの数値の%sは %d です。\n"
+#define RECURSIVE_NOTIFICATION5 "もう一度計算しますか?(y/n)\n"
+
+#define RECURSIVE_NOTIFICATION6 "総和"
+#define RECURSIVE_NOTIFICATION7 "総乗"
+
 #define ERROR_NOTIFICATION2 "不正な入力です。\n"
+#define STOP_NOTIFICATION "終了します。\n"
 
 // 計算に用いる 5 つの数値と処理番号を保持
 typedef struct {
@@ -53,14 +59,12 @@ int getData(VALUE_LIST *lstData) {
 	printf(SEPARATOR);
 	fflush(stdout);
 
-	int iData, iIndex = 0;
+	int iIndex = 0;
 
 	do {
-		iData = -1;
+		char *sData = (char*) calloc(DATA_MAX_LENGTH, sizeof(char));
 
-		char *sData = (char *) calloc(DATA_MAX_LENGTH, sizeof(char));
-
-		printf(RECURSIVE_NOTIFICATION1, iIndex - 1);
+		printf(RECURSIVE_NOTIFICATION1, iIndex + 1);
 		fflush(stdout);
 		scanf("%12s", sData);
 
@@ -71,13 +75,40 @@ int getData(VALUE_LIST *lstData) {
 			continue;
 		}
 
-//		iData = (int) strtol(sData, (char**) NULL, 10);
-
-		*(lstData + iIndex)->value = sData;
+		strcpy(lstData->value[iIndex], sData);
 
 		iIndex++;
 		free(sData);
 	} while (iIndex < DATA_CNT);
+
+	printf(SEPARATOR);
+	printf(RECURSIVE_NOTIFICATION2);
+	printf(SEPARATOR);
+	printf(RECURSIVE_NOTIFICATION3);
+	fflush(stdout);
+
+	int iData;
+	do {
+		char *sData = (char*) calloc(1, sizeof(char));
+
+		scanf("%1s", sData);
+
+		iData = (int) strtol(sData, (char**) NULL, 10);
+
+		if (!isNumber(sData) || (iData != 1 && iData != 2)) {
+			printf(SEPARATOR);
+			printf(RECURSIVE_NOTIFICATION2);
+			printf(SEPARATOR);
+			printf(RECURSIVE_NOTIFICATION3);
+			fflush(stdout);
+
+			continue;
+		}
+
+		strcpy(lstData->number, sData);
+
+		free(sData);
+	} while (iData != 1 && iData != 2);
 
 	return 0;
 }
@@ -103,17 +134,88 @@ bool isNumber(const char *input) {
  * プロセス実行関数
  */
 bool execProcess(const VALUE_LIST *lstData) {
-	int (*func[])(const char[][DATA_MAX_LENGTH],
+	int (*func[])(const char sData[][DATA_MAX_LENGTH],
 			int cnt) = {recursiveA , recursiveB };
 
-//	int iChoose = (int) strtol(sChoose, (char**) NULL, 10);
-//	int iLines = (int) strtol(sLines, (char**) NULL, 10);
-	int iChoose = 0, iLines = 0;
-	(*func[iChoose - 1])(lstData, iLines);
+	int iChoose = (int) strtol(lstData->number, (char**) NULL, 10);
+
+	int result = (*func[iChoose - 1])(lstData->value, iChoose);
+
+	printf(RECURSIVE_NOTIFICATION4,
+			iChoose == 1 ? RECURSIVE_NOTIFICATION6 : RECURSIVE_NOTIFICATION7,
+			result);
+	printf(RECURSIVE_NOTIFICATION5);
+	fflush(stdout);
+
+	char *sData;
+
+	do {
+		sData = (char*) calloc(1, sizeof(char));
+
+		scanf("%1s", sData);
+
+		if (sData[0] != 'y' && sData[0] != 'n') {
+			printf(RECURSIVE_NOTIFICATION5);
+			fflush(stdout);
+
+			continue;
+		}
+
+		printf(SEPARATOR);
+	} while(sData[0] != 'y' && sData[0] != 'n');
+
+	return sData[0] == 'y' ? true : false;
+}
+
+/*
+ * 再帰的計算 総和関数
+ */
+int recursiveA(const char sData[][DATA_MAX_LENGTH], int cnt) {
+	int sum = 0;
+
+	for (int i = 0; i < DATA_CNT; ++i) {
+		int iData = (int) strtol(sData[i], (char**) NULL, 10);
+
+		sum += iData;
+	}
+
+	return sum;
+}
+
+/*
+ * 再帰的計算 総乗関数
+ */
+int recursiveB(const char sData[][DATA_MAX_LENGTH], int cnt) {
+	int power = 1;
+
+	for (int i = 0; i < DATA_CNT; ++i) {
+		int iData = (int) strtol(sData[i], (char**) NULL, 10);
+
+		power *= iData;
+	}
+
+	return power;
 }
 
 int main(void) {
-	VALUE_LIST *lstData = (VALUE_LIST *) calloc(DATA_CNT, sizeof(VALUE_LIST));
-	getData(lstData);
+	VALUE_LIST *lstData = (VALUE_LIST*) calloc(1, sizeof(VALUE_LIST));
+
+	while (true) {
+		if (getData(lstData) != 0) {
+			printf(STOP_NOTIFICATION);
+			fflush(stdout);
+
+			break;
+		}
+
+		if (!execProcess(lstData)) {
+			printf(STOP_NOTIFICATION);
+			fflush(stdout);
+
+			break;
+		}
+	}
+
+	getchar();
 	return EXIT_SUCCESS;
 }
