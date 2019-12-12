@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 // ツールのタイトル
 #define TITLE "再帰的計算ツール\n"
@@ -115,15 +116,44 @@ int getData(VALUE_LIST *lstData) {
 
 /*
  * 入力値の数字チェック関数
+ * "-1": true
+ * " -1": true
+ * "+1": true
+ * " +1": true
+ * "-1-": false
+ * "+1+": false
+ * " -1-": false
+ * " +1+": false
+ * "--1": false
+ * "++1": false
+ * " --1": false
+ * " ++1": false
  */
+//bool isNumber(const char *input) {
+//	int iData = (int) strtol(input, (char**) NULL, 10);
+//printf("121 - iData: %d\n", iData);
+//	if (iData == 0) {
+//		for (int i = 0; input[i] != '\0'; i++) {
+//			if (!('0' <= input[i] && input[i] <= '9')) {
+//				return false;
+//			}
+//		}
+//	}
+//
+//	return true;
+//}
 bool isNumber(const char *input) {
-	int iData = (int) strtol(input, (char**) NULL, 10);
+	int i = 0;
 
-	if (iData == 0) {
-		for (int i = 0; input[i] != '\0'; i++) {
-			if (!('0' <= input[i] && input[i] <= '9')) {
-				return false;
-			}
+	for (i = 0; input[i] != '\0'; i++) {
+		if (input[i] == '-' || input[i] == '+') {
+			break;
+		}
+	}
+
+	for (i++; input[i] != '\0'; i++) {
+		if (!('0' <= input[i] && input[i] <= '9')) {
+			return false;
 		}
 	}
 
@@ -139,7 +169,7 @@ bool execProcess(const VALUE_LIST *lstData) {
 
 	int iChoose = (int) strtol(lstData->number, (char**) NULL, 10);
 
-	int result = (*func[iChoose - 1])(lstData->value, iChoose);
+	int result = (*func[iChoose - 1])(lstData->value, 0);
 
 	printf(RECURSIVE_NOTIFICATION4,
 			iChoose == 1 ? RECURSIVE_NOTIFICATION6 : RECURSIVE_NOTIFICATION7,
@@ -162,7 +192,7 @@ bool execProcess(const VALUE_LIST *lstData) {
 		}
 
 		printf(SEPARATOR);
-	} while(sData[0] != 'y' && sData[0] != 'n');
+	} while (sData[0] != 'y' && sData[0] != 'n');
 
 	return sData[0] == 'y' ? true : false;
 }
@@ -170,31 +200,49 @@ bool execProcess(const VALUE_LIST *lstData) {
 /*
  * 再帰的計算 総和関数
  */
+//int recursiveA(const char sData[][DATA_MAX_LENGTH], int cnt) {
+//	int sum = 0;
+//
+//	for (int i = 0; i < DATA_CNT; ++i) {
+//		int iData = (int) strtol(sData[i], (char**) NULL, 10);
+//
+//		sum += iData;
+//	}
+//
+//	return sum;
+//}
 int recursiveA(const char sData[][DATA_MAX_LENGTH], int cnt) {
-	int sum = 0;
+	int iData = (int) strtol(sData[cnt], (char**) NULL, 10);
 
-	for (int i = 0; i < DATA_CNT; ++i) {
-		int iData = (int) strtol(sData[i], (char**) NULL, 10);
-
-		sum += iData;
+	if (cnt >= DATA_CNT - 1) {
+		return iData;
 	}
 
-	return sum;
+	return iData + recursiveA(sData, cnt + 1);
 }
 
 /*
  * 再帰的計算 総乗関数
  */
+//int recursiveB(const char sData[][DATA_MAX_LENGTH], int cnt) {
+//	int power = 1;
+//
+//	for (int i = 0; i < DATA_CNT; ++i) {
+//		int iData = (int) strtol(sData[i], (char**) NULL, 10);
+//
+//		power *= iData;
+//	}
+//
+//	return power;
+//}
 int recursiveB(const char sData[][DATA_MAX_LENGTH], int cnt) {
-	int power = 1;
+	int iData = (int) strtol(sData[cnt], (char**) NULL, 10);
 
-	for (int i = 0; i < DATA_CNT; ++i) {
-		int iData = (int) strtol(sData[i], (char**) NULL, 10);
-
-		power *= iData;
+	if (cnt >= DATA_CNT - 1) {
+		return iData;
 	}
 
-	return power;
+	return iData * recursiveB(sData, cnt + 1);
 }
 
 int main(void) {
