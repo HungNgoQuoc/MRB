@@ -128,6 +128,10 @@ int getData(VALUE_LIST *lstData) {
  * "++1": false
  * " --1": false
  * " ++1": false
+ * "1-": false
+ * "1+": false
+ * " 1-": false
+ * " 1+": false
  */
 //bool isNumber(const char *input) {
 //	int iData = (int) strtol(input, (char**) NULL, 10);
@@ -145,13 +149,30 @@ int getData(VALUE_LIST *lstData) {
 bool isNumber(const char *input) {
 	int i = 0;
 
-	for (i = 0; input[i] != '\0'; i++) {
-		if (input[i] == '-' || input[i] == '+') {
-			break;
-		}
-	}
+//	for (i = 0; input[i] != '\0'; i++) {
+//		if (input[i] == '-' || input[i] == '+'
+//				|| ('0' <= input[i] && input[i] <= '9')) {
+//			break;
+//		}
+//	}
+//
+//	for (i++; input[i] != '\0'; i++) {
+//		if (!('0' <= input[i] && input[i] <= '9')) {
+//			return false;
+//		}
+//	}
+
+	int iMarks = 0; // "-1-+": 3
 
 	for (i++; input[i] != '\0'; i++) {
+		if (iMarks > 1) {
+			return false;
+		}
+
+		if (input[i] == '-' || input[i] == '+') {
+			iMarks++;
+		}
+
 		if (!('0' <= input[i] && input[i] <= '9')) {
 			return false;
 		}
