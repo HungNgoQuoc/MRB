@@ -146,41 +146,49 @@ int getData(VALUE_LIST *lstData) {
 //
 //	return true;
 //}
-bool isNumber(const char *input) {
-	int i = 0;
-
-//	for (i = 0; input[i] != '\0'; i++) {
-//		if (input[i] == '-' || input[i] == '+'
-//				|| ('0' <= input[i] && input[i] <= '9')) {
-//			break;
-//		}
-//	}
+//bool isNumber(const char *input) {
+//	int i = 0, j = 0;
+//	int iMarks = 0; // "-1-+": 3
 //
-//	for (i++; input[i] != '\0'; i++) {
-//		if (!('0' <= input[i] && input[i] <= '9')) {
+//	for (i = 0; input[i] != '\0'; i++) {
+//		if (input[i] == '-' || input[i] == '+') {
+//			iMarks++;
+//			j = i;
+//		} else if (!('0' <= input[i] && input[i] <= '9')) {
+//			return false;
+//		}
+//
+//		if (iMarks > 1) {
 //			return false;
 //		}
 //	}
+//
+//	if (j > 0) {
+//		if ('0' <= input[j - 1] && input[j - 1] <= '9') {
+//			return false;
+//		}
+//	}
+//
+//	return true;
+//}
+bool isNumber(const char *input) {
+	if (*input == '-') {
+		input++;
+	}
 
-	int iMarks = 0; // "-1-+": 3
+	if (*input == '\0') {
+		return false;
+	}
 
-	for (i++; input[i] != '\0'; i++) {
-		if (iMarks > 1) {
+	while (*input) {
+		if (*input < '0' || *input > '9') {
 			return false;
 		}
-
-		if (input[i] == '-' || input[i] == '+') {
-			iMarks++;
-		}
-
-		if (!('0' <= input[i] && input[i] <= '9')) {
-			return false;
-		}
+		input++;
 	}
 
 	return true;
 }
-
 /*
  * プロセス実行関数
  */
