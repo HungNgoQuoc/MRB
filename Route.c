@@ -2,7 +2,7 @@
  ============================================================================
  Name        : Route.c
  Author      : NGO QUOC HUNG
- Version     : 1.0.0
+ Version     : 2.0.0
  Copyright   : Copyright
  Description : Route
  ============================================================================
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "graphics.h"
 #pragma comment(lib, "graphics.lib")
 
@@ -30,8 +31,6 @@ int input[9][6] = { { 1, 1, 1, 1 },
 					{ 0, 0, 1, 0 },
 					{ 0, 1, 0, 0, 1 },
 					{ 0, 1, 1, 1 } };
-
-char output[50];
 
 int matrix[11][10];
 int matrixWall[11][10];
@@ -193,21 +192,22 @@ char currentDirection(int pX, int pY, int cX, int cY) {
 void createGraph() {
 	for (int i = 0; i < 11; i++) {
 		for (int j = 0; j < 10; j++) {
-			if (matrix[i][j] == 0)
-			{
-				setcolor(WHITE);
-			}
-			else
-			{
-				setcolor(RED);
-			}
-
 			POINT p;
 			p.x = j * 40 + 10;
 			p.y = i * 40 + 10;
 			graphMatrix[i][j] = p;
 
-			circle(p.x, p.y, 10);
+			if (matrix[i][j] == 0)
+			{
+				setcolor(WHITE);
+				circle(p.x, p.y, 10);
+			}
+			else
+			{
+				setcolor(RED);
+				//bar(p.x - 20, p.y - 20, p.x + 20, p.y + 20);
+				rectangle(p.x - 20, p.y - 20, p.x + 20, p.y + 20);
+			}
 		}
 	}
 }
@@ -276,7 +276,9 @@ int main()
 	initgraph(&gd, &gm, "c:\\tc\\bgi");
 
 	bool bComeBack = false;
-	int value = 0, index = 0;
+	int value = 0, index = 7;
+	char *output = (char *)malloc(100);
+	*output = 'R', *(output + 1) = 'e', *(output + 2) = 's', *(output + 3) = 'u', *(output + 4) = 'l', *(output + 5) = 't', *(output + 6) = ':';
 
 	// 前点
 	POINT p;
@@ -304,6 +306,8 @@ int main()
 	circle(graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y, 10);
 
 	matrix[c.x][c.y] -= 1;
+	*(output + index) = currentDirection(p.x, p.y, c.x, c.y);
+	index++;
 
 	while (true) {
 		if (c.x <= 0 && c.y <= 0) {
@@ -341,10 +345,29 @@ int main()
 
 		//歩きの向きを判定する
 		char direction = currentDirection(p.x, p.y, c.x, c.y);
-		printf("%c", (c.x + c.y) % 2 != 0 ? direction : ' ');
+		//printf("%c", (c.x + c.y) % 2 != 0 && !(c.x == p.x && c.y == p.y) ? direction : ' ');
+		
+		if ((c.x + c.y) % 2 != 0) {
+			if (*(output + index - 1) == direction) {
+				*(output + index) = direction;
+			}
+			else {
+				index--;
+				*(output + index) = direction;
+			}
+			index++;
+		}
+
+		char *result = (char *)malloc(index + 1);
+		result = output;
+		*(result + index + 1) = '\0';
+		setcolor(14);
+		outtextxy(graphMatrix[10][0].x + 20, graphMatrix[10][0].y + 20, result);
+
 		Sleep(100);
 	}
 
+	free(output);
 	//showMatrix();
 	
 	getch();
