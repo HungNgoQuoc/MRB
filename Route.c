@@ -72,6 +72,14 @@ void showMatrix() {
 	}
 }
 
+void deleteMatrix() {
+	for (int i = 0; i < 11; i++) {
+		for (int j = 0; j < 10; j++) {
+			matrix[i][j] = 0;
+		}
+	}
+}
+
 bool isNearWall(int x, int y) {
 	if (x - 1 >= 0) {
 		if (matrix[x - 1][y] == 1) {
@@ -195,108 +203,119 @@ void createGraph() {
 	}
 }
 
+void printfResulf(char *output, int index) {
+	char *result = (char *)malloc(index + 1);
+	result = output;
+	*(result + index + 1) = '\0';
+	setcolor(14);
+	outtextxy(graphMatrix[10][0].x + 20, graphMatrix[10][0].y + 20, result);
+}
+
 int main()
 {
 	initgraph(&gd, &gm, "c:\\tc\\bgi");
 
-	bool bComeBack = false;
-	int value = 0, index = 7;
-	char *output = (char *)malloc(100);
-	*output = 'R', *(output + 1) = 'e', *(output + 2) = 's', *(output + 3) = 'u', *(output + 4) = 'l', *(output + 5) = 't', *(output + 6) = ':';
+	do
+	{
+		clearviewport();
+		bool bComeBack = false;
+		int value = 0, index = 7;
+		char *output = (char *)malloc(100);
+		*output = 'R', *(output + 1) = 'e', *(output + 2) = 's', *(output + 3) = 'u', *(output + 4) = 'l', *(output + 5) = 't', *(output + 6) = ':';
+		
+		// 前点
+		POINT p;
+		p.x = 0;
+		p.y = 0;
 
-	// 前点
-	POINT p;
-	p.x = 0;
-	p.y = 0;
+		// カレント点
+		POINT c;
 
-	// カレント点
-	POINT c;
+		createMatrix();
+		showMatrix();
+		createGraph();
 
-	createMatrix();
-	showMatrix();
-	createGraph();
-	if (matrix[p.x][p.y + 1] == 1) {
-		c.x = p.x + 1;
-		c.y = p.y;
-	}
-	setcolor(13);
-	circle(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, 10);
-
-	if (matrix[p.x + 1][p.y] == 1) {
-		c.x = p.x;
-		c.y = p.y + 1;
-	}
-	setcolor(5);
-	circle(graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y, 10);
-
-	matrix[c.x][c.y] -= 1;
-	*(output + index) = currentDirection(p.x, p.y, c.x, c.y);
-	index++;
-
-	while (true) {
-		if (c.x <= 0 && c.y <= 0) {
-			break;
+		if (matrix[p.x][p.y + 1] == 1) {
+			c.x = p.x + 1;
+			c.y = p.y;
 		}
+		setcolor(13);
+		circle(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, 10);
 
-		if (c.x > 11 || c.y > 10) {
-			break;
+		if (matrix[p.x + 1][p.y] == 1) {
+			c.x = p.x;
+			c.y = p.y + 1;
 		}
+		setcolor(5);
+		circle(graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y, 10);
 
-		POINT point = findWay(p, c, value);
-		if (point.x <= 0 && point.y <= 0) {
-			if (!bComeBack) {
+		matrix[c.x][c.y] -= 1;
+		*(output + index) = currentDirection(p.x, p.y, c.x, c.y);
+		index++;
+
+		while (true) {
+			if (c.x <= 0 && c.y <= 0) {
+				break;
+			}
+
+			if (c.x > 11 || c.y > 10) {
+				break;
+			}
+
+			POINT point = findWay(p, c, value);
+			if (point.x <= 0 && point.y <= 0) {
+				if (!bComeBack) {
+					p = c;
+					bComeBack = true;
+					value = -1;
+					setcolor(13);
+					circle(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, 10);
+					setcolor(5);
+					circle(graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y, 10);
+				}
+
+				point = findWay(p, c, value);
+			}
+
+			if (!(c.x == point.x && c.y == point.y)) {
 				p = c;
-				bComeBack = true;
-				value = -1;
+				c = point;
 				setcolor(13);
 				circle(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, 10);
 				setcolor(5);
 				circle(graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y, 10);
+				matrix[c.x][c.y] -= 1;
 			}
 
-			point = findWay(p, c, value);
-		}
+			//歩きの向きを判定する
+			char direction = currentDirection(p.x, p.y, c.x, c.y);
+			//printf("%c", (c.x + c.y) % 2 != 0 && !(c.x == p.x && c.y == p.y) ? direction : ' ');
 
-		if (!(c.x == point.x && c.y == point.y)) {
-			p = c;
-			c = point;
-			setcolor(13);
-			circle(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, 10);
-			setcolor(5);
-			circle(graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y, 10);
-			matrix[c.x][c.y] -= 1;
-		}
-
-		//歩きの向きを判定する
-		char direction = currentDirection(p.x, p.y, c.x, c.y);
-		//printf("%c", (c.x + c.y) % 2 != 0 && !(c.x == p.x && c.y == p.y) ? direction : ' ');
-		
-		if ((c.x + c.y) % 2 != 0) {
-			if (*(output + index - 1) == direction) {
-				*(output + index) = direction;
+			if ((c.x + c.y) % 2 != 0) {
+				if (*(output + index - 1) == direction) {
+					*(output + index) = direction;
+				}
+				else {
+					index--;
+					*(output + index) = direction;
+				}
+				index++;
 			}
-			else {
-				index--;
-				*(output + index) = direction;
-			}
-			index++;
+
+			printfResulf(output, index);
+
+			Sleep(100);
 		}
 
-		char *result = (char *)malloc(index + 1);
-		result = output;
-		*(result + index + 1) = '\0';
-		setcolor(14);
-		outtextxy(graphMatrix[10][0].x + 20, graphMatrix[10][0].y + 20, result);
+		printf("%s", output);
 
-		Sleep(100);
-	}
+		deleteMatrix();
+		free(output);
+		//showMatrix();
 
-	printf("%s", output);
+		getch();
+	} while (true);
 
-	free(output);
-	//showMatrix();
-	
-	getch();
 	closegraph();
 
 	return 0;
