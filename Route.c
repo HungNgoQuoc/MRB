@@ -33,7 +33,6 @@ int input[9][6] = { { 1, 1, 1, 1 },
 					{ 0, 1, 1, 1 } };
 
 int matrix[11][10];
-int matrixWall[11][10];
 
 POINT graphMatrix[11][10];
 
@@ -59,12 +58,6 @@ void createMatrix() {
 			}
 		}
 	}
-
-	for (int i = 0; i < 11; i++) {
-		for (int j = 0; j < 10; j++) {
-			matrixWall[i][j] = matrix[i][j];
-		}
-	}
 }
 
 void showMatrix() {
@@ -77,16 +70,6 @@ void showMatrix() {
 		printf("\n");
 		fflush(stdout);
 	}
-
-	/*printf("\nMatrix Wall:\n");
-	for (int i = 0; i < 11; i++) {
-		for (int j = 0; j < 10; j++) {
-			printf("%3d", matrixWall[i][j]);
-			fflush(stdout);
-		}
-		printf("\n");
-		fflush(stdout);
-	}*/
 }
 
 bool isNearWall(int x, int y) {
@@ -212,65 +195,6 @@ void createGraph() {
 	}
 }
 
-//POINT findWallBegin() {
-//	for (int i = 0; i < 11; i++) {
-//		for (int j = 0; j < 10; j++) {
-//			if (matrix[i][j] == 1)
-//			{
-//				POINT p;
-//				p.x = i;
-//				p.y = j;
-//				return p;
-//			}
-//		}
-//	}
-//}
-
-//void createWall() {
-//	// 前点
-//	POINT p = findWallBegin();
-//
-//	// カレント点
-//	POINT c;
-//
-//	if (matrixWall[p.x][p.y + 1] == 1) {
-//		c.x = p.x;
-//		c.y = p.y + 1;
-//	}
-//
-//	if (matrixWall[p.x + 1][p.y] == 1) {
-//		c.x = p.x + 1;
-//		c.y = p.y;
-//	}
-//	matrixWall[c.x][c.y] += 2;
-//
-//	setcolor(RED);
-//	line(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y);
-//
-//	while (true) {
-//		if (c.x <= 0 && c.y <= 0) {
-//			break;
-//		}
-//
-//		if (c.x > 11 || c.y > 10) {
-//			break;
-//		}
-//
-//		POINT point = findWay(p, c, 1);
-//		if (point.x <= 0 && point.y <= 0) {
-//			break;
-//		}
-//
-//		if (!(c.x == point.x && c.y == point.y)) {
-//			p = c;
-//			c = point;
-//			setcolor(RED);
-//			line(graphMatrix[p.x][p.y].x, graphMatrix[p.x][p.y].y, graphMatrix[c.x][c.y].x, graphMatrix[c.x][c.y].y);
-//			matrixWall[c.x][c.y] += 2;
-//		}
-//	}
-//}
-
 int main()
 {
 	initgraph(&gd, &gm, "c:\\tc\\bgi");
@@ -366,6 +290,8 @@ int main()
 
 		Sleep(100);
 	}
+
+	printf("%s", output);
 
 	free(output);
 	//showMatrix();
