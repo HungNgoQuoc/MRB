@@ -32,6 +32,8 @@ int input[9][6] = { { 1, 1, 1, 1 },
 					{ 0, 1, 0, 0, 1 },
 					{ 0, 1, 1, 1 } };
 
+// Result:RRRRDDDDLLLUUURRDDLURDRUULLDDDRRRUUUULLLL
+
 int matrix[11][10];
 
 POINT graphMatrix[11][10];
@@ -252,7 +254,7 @@ int main()
 		matrix[c.x][c.y] -= 1;
 		*(output + index) = currentDirection(p.x, p.y, c.x, c.y);
 		index++;
-
+		printf("Result:");
 		while (true) {
 			if (c.x <= 0 && c.y <= 0) {
 				break;
@@ -265,6 +267,8 @@ int main()
 			POINT point = findWay(p, c, value);
 			if (point.x <= 0 && point.y <= 0) {
 				if (!bComeBack) {
+					*(output + index) = currentDirection(p.x, p.y, c.x, c.y);
+					index++;
 					p = c;
 					bComeBack = true;
 					value = -1;
@@ -290,8 +294,10 @@ int main()
 			//歩きの向きを判定する
 			char direction = currentDirection(p.x, p.y, c.x, c.y);
 			//printf("%c", (c.x + c.y) % 2 != 0 && !(c.x == p.x && c.y == p.y) ? direction : ' ');
+			//printf("%c", direction);
 
 			if ((c.x + c.y) % 2 != 0) {
+				//printf("%s\n", output);
 				if (*(output + index - 1) == direction) {
 					*(output + index) = direction;
 				}
@@ -307,7 +313,8 @@ int main()
 			Sleep(100);
 		}
 
-		printf("%s", output);
+		//printf("\n%s", output);
+		//printfResulf(output, index - 1);
 
 		deleteMatrix();
 		free(output);
